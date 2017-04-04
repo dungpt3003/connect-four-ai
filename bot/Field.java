@@ -232,7 +232,6 @@ public class Field {
 					else check = true;
 				}
 
-		check = true;
 		 // Check diagonal
 		 for (int y = 0; y < mRows - state + 1; y++)
  			for (int x = 0; x < mCols - state + 1; x++)
@@ -249,10 +248,71 @@ public class Field {
 	 }
 
 	 /**
+ 	 * @return : Count special case: Three in a row with a missing in the middle
+ 	 */
+ 	 public int checkMissingThree(int[][] currBoard, int bot) {
+		int countState = 0;
+		boolean check = true;
+		int nMissing = 0;
+		// Check horizontal
+		for (int y = 0; y < mRows; y++)
+		   for (int x = 0; x < mCols - 3; x++)
+			   if (currBoard[x][y] == bot){
+				   for (int j = 1; j < 4; j++){
+					   if (currBoard[x + j][y] == 3 - bot){
+						   check = false;
+						   break;
+					   }
+					   else if (currBoard[x + j][y] == 0)
+					   	   nMissing += 1;
+				   }
+				   if (check == true && nMissing == 1) countState += 1;
+				   check = true;
+				   nMissing = 0;
+			   }
+
+
+		// Check vertical
+		for (int x = 0; x < mCols; x++)
+		   for (int y = 0; y < mRows - 3; y++)
+			   if (currBoard[x][y] == bot){
+				   for (int j = 1; j < 4; j++){
+					   if (currBoard[x][y + j] == 3 - bot){
+						   check = false;
+						   break;
+					   }
+					   else if (currBoard[x][y + j] == 0)
+						   nMissing += 1;
+				   }
+				   if (check == true && nMissing == 1) countState += 1;
+				   check = true;
+				   nMissing = 0;
+			   }
+
+	  	// Check diagonal
+		for (int y = 0; y < mRows - 3; y++)
+		   for (int x = 0; x < mCols - 3; x++)
+			   if (currBoard[x][y] == bot){
+				   for (int j = 1; j < 4; j++){
+				   if (currBoard[x + j][y + j] == 3 - bot){
+					   check = false;
+					   break;
+				   }
+				   else if (currBoard[x + j][y + j] == 0)
+					   nMissing += 1;
+		       }
+			   if (check == true && nMissing == 1) countState += 1;
+		   }
+
+		return countState;
+	 }
+
+	 /**
  	 * @return : Heuristic function to evaluate current state of the board
  	 */
 	 public int evaluateBoard(int[][] currBoard){
 		 int fours = checkState(currBoard, 4, mBotId);
+		 int missingThrees = checkMissingThree(currBoard, mBotId);
 		//  if (fours > 0)
 		//  	return 1000000;
 		 int oppFours = checkState(currBoard, 4, 3 - mBotId);
@@ -262,7 +322,8 @@ public class Field {
 		 int twos   = checkState(currBoard, 2, mBotId);
 		 int oppThrees = checkState(currBoard, 3, 3 - mBotId);
 		 int oppTwos = checkState(currBoard, 2, 3 - mBotId);
-		 return 10000 * fours + 100 * threes + 10 * twos - 10000 * oppFours - 100 * oppThrees - 10 * oppTwos;
+		 int oppMissingThrees = checkMissingThree(currBoard, 3 - mBotId);
+		 return 10000 * fours + 1000 * missingThrees + 100 * threes + 10 * twos - 10000 * oppFours - 1000 * oppMissingThrees - 100 * oppThrees - 10 * oppTwos;
 	 }
 
 	 /**
