@@ -251,18 +251,18 @@ public class Field {
 	 /**
  	 * @return : Heuristic function to evaluate current state of the board
  	 */
-	 public int evaluateBoard(int[][] currBoard, int depth){
+	 public int evaluateBoard(int[][] currBoard){
 		 int fours = checkState(currBoard, 4, mBotId);
-		 if (fours > 0)
-		 	return 1000000;
+		//  if (fours > 0)
+		//  	return 1000000;
 		 int oppFours = checkState(currBoard, 4, 3 - mBotId);
-		 if (oppFours > 0)
-		 	return -1000000;
-		 int threes = checkState(currBoard, 3, mBotId) * (depth + 1);
-		 int twos   = checkState(currBoard, 2, mBotId) * (depth + 1);
-		 int oppThrees = checkState(currBoard, 3, 3 - mBotId) * (depth + 1);
-		 int oppTwos = checkState(currBoard, 2, 3 - mBotId) * (depth + 1);
-		 return 1000 * threes + 10 * twos - 1000 *  oppThrees - 10 * oppTwos;
+		//  if (oppFours > 0)
+		//  	return -1000000;
+		 int threes = checkState(currBoard, 3, mBotId);
+		 int twos   = checkState(currBoard, 2, mBotId);
+		 int oppThrees = checkState(currBoard, 3, 3 - mBotId);
+		 int oppTwos = checkState(currBoard, 2, 3 - mBotId);
+		 return 10000 * fours + 100 * threes + 10 * twos - 10000 * oppFours - 100 * oppThrees - 10 * oppTwos;
 	 }
 
 	 /**
@@ -295,8 +295,8 @@ public class Field {
 	 * Recursive function to evaluate all available moves
 	 */
 	 public int minimax(int[][] currBoard, int depth, int col, int bot){
-		int res = evaluateBoard(currBoard);
-         if(depth == 0 || res == 1000000 || res == -1000000) {
+         if(depth == 0) {
+			 int res = evaluateBoard(currBoard);
              return res;
          }
 
@@ -313,14 +313,14 @@ public class Field {
 			 for (int x = 0; x < mCols; x++)
 			 	if (isValidMove(currBoard, x)) {
 					int next = minimax(currBoard, depth - 1, x, 3 - bot);
-					// if (next > maxScore)
-					// 	maxScore = next;
-					maxScore += next;
+					if (next > maxScore)
+						maxScore = next;
+					//maxScore += next;
 			 	}
 			currBoard = removeMove(currBoard, col);
 	 	 }
 
-		 return maxScore;
+		 return maxScore * (depth + 1);
 	 }
 
 	 /**
