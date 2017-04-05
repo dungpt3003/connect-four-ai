@@ -313,17 +313,17 @@ public class Field {
 	 public int evaluateBoard(int[][] currBoard){
 		 int fours = checkState(currBoard, 4, mBotId);
 		 int missingThrees = checkMissingThree(currBoard, mBotId);
-		//  if (fours > 0)
-		//  	return 1000000;
+		 if (fours > 0)
+		 	return 1000;
 		 int oppFours = checkState(currBoard, 4, 3 - mBotId);
-		//  if (oppFours > 0)
-		//  	return -1000000;
+		 if (oppFours > 0)
+		 	return -1000;
 		 int threes = checkState(currBoard, 3, mBotId);
 		 int twos   = checkState(currBoard, 2, mBotId);
 		 int oppThrees = checkState(currBoard, 3, 3 - mBotId);
 		 int oppTwos = checkState(currBoard, 2, 3 - mBotId);
 		 int oppMissingThrees = checkMissingThree(currBoard, 3 - mBotId);
-		 return 10000 * fours + 1000 * missingThrees + 100 * threes + 10 * twos - 10000 * oppFours - 1000 * oppMissingThrees - 100 * oppThrees - 10 * oppTwos;
+		 return 10 * threes + twos - 10 * oppThrees - oppTwos;
 	 }
 
 	 /**
