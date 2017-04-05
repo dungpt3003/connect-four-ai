@@ -374,9 +374,9 @@ public class Field {
 			 for (int x = 0; x < mCols; x++)
 			 	if (isValidMove(currBoard, x)) {
 					int next = minimax(currBoard, depth - 1, x, 3 - bot);
-					if (next > maxScore)
-						maxScore = next;
-					//maxScore += next;
+					// if (next > maxScore)
+					// 	maxScore = next;
+					maxScore += next;
 			 	}
 			currBoard = removeMove(currBoard, col);
 	 	 }
