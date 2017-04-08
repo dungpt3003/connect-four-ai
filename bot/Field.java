@@ -250,15 +250,15 @@ public class Field {
 	 /**
  	 * @return : Count special case: Three in a row with a missing in the middle
  	 */
- 	 public int checkMissingThree(int[][] currBoard, int bot) {
+ 	 public int checkMissingState(int[][] currBoard, int state, int bot) {
 		int countState = 0;
 		boolean check = true;
 		int nMissing = 0;
 		// Check horizontal
 		for (int y = 0; y < mRows; y++)
 		   for (int x = 0; x < mCols - 3; x++)
-			   if (currBoard[x][y] == bot){
-				   for (int j = 1; j < 4; j++){
+			   if (currBoard[x][y] != 3 - bot){
+				   for (int j = 0; j < 4; j++){
 					   if (currBoard[x + j][y] == 3 - bot){
 						   check = false;
 						   break;
@@ -266,7 +266,9 @@ public class Field {
 					   else if (currBoard[x + j][y] == 0)
 					   	   nMissing += 1;
 				   }
-				   if (check == true && nMissing == 1) countState += 1;
+				   if (check == true && nMissing == 4 - state) {
+						 	countState += 1;
+					 }
 				   check = true;
 				   nMissing = 0;
 			   }
@@ -275,8 +277,8 @@ public class Field {
 		// Check vertical
 		for (int x = 0; x < mCols; x++)
 		   for (int y = 0; y < mRows - 3; y++)
-			   if (currBoard[x][y] == bot){
-				   for (int j = 1; j < 4; j++){
+			   if (currBoard[x][y] != 3 - bot){
+				   for (int j = 0; j < 4; j++){
 					   if (currBoard[x][y + j] == 3 - bot){
 						   check = false;
 						   break;
@@ -284,16 +286,16 @@ public class Field {
 					   else if (currBoard[x][y + j] == 0)
 						   nMissing += 1;
 				   }
-				   if (check == true && nMissing == 1) countState += 1;
+				   if (check == true && nMissing == 4 - state) countState += 1;
 				   check = true;
 				   nMissing = 0;
 			   }
 
-	  	// Check diagonal
+	  // Check diagonal top-left => bottom-right
 		for (int y = 0; y < mRows - 3; y++)
 		   for (int x = 0; x < mCols - 3; x++)
-			   if (currBoard[x][y] == bot){
-				   for (int j = 1; j < 4; j++){
+			   if (currBoard[x][y] != 3 - bot){
+				   for (int j = 0; j < 4; j++){
 				   if (currBoard[x + j][y + j] == 3 - bot){
 					   check = false;
 					   break;
@@ -301,9 +303,27 @@ public class Field {
 				   else if (currBoard[x + j][y + j] == 0)
 					   nMissing += 1;
 		       }
-			   if (check == true && nMissing == 1) countState += 1;
+			   if (check == true && nMissing == 4 - state) countState += 1;
+				 check = true;
+				 nMissing = 0;
 		   }
 
+		 // Check diagonal bottom-left => top-right
+		 for (int y = 3; y < mRows; y++)
+ 		   for (int x = 0; x < mCols - 3; x++)
+ 			   if (currBoard[x][y] != 3 - bot){
+ 				   for (int j = 0; j < 4; j++){
+ 				   if (currBoard[x + j][y - j] == 3 - bot){
+ 					   check = false;
+ 					   break;
+ 				   }
+ 				   else if (currBoard[x + j][y - j] == 0)
+ 					   nMissing += 1;
+ 		       }
+ 			   if (check == true && nMissing == 4 - state) countState += 1;
+ 				 check = true;
+ 				 nMissing = 0;
+ 		   }
 		return countState;
 	 }
 
@@ -311,19 +331,22 @@ public class Field {
  	 * @return : Heuristic function to evaluate current state of the board
  	 */
 	 public int evaluateBoard(int[][] currBoard){
-		 int fours = checkState(currBoard, 4, mBotId);
-		 int missingThrees = checkMissingThree(currBoard, mBotId);
+		 int fours = checkMissingState(currBoard, 4, mBotId);
+		 int oppFours = checkMissingState(currBoard, 4, 3 - mBotId);
+		 int missingThrees = checkMissingState(currBoard, 3, mBotId);
+		 int oppMissingThrees = checkMissingState(currBoard, 3, 3 - mBotId);
+		 int missingTwos = checkMissingState(currBoard, 2, mBotId) - checkMissingState(currBoard, 3, mBotId);
+		 int oppMissingTwos = checkMissingState(currBoard, 2, 3 - mBotId) - checkMissingState(currBoard, 3, 3 - mBotId);
 		 if (fours > 0)
 		 	return 1000;
-		 int oppFours = checkState(currBoard, 4, 3 - mBotId);
 		 if (oppFours > 0)
-		 	return -1000;
-		 int threes = checkState(currBoard, 3, mBotId);
-		 int twos   = checkState(currBoard, 2, mBotId);
-		 int oppThrees = checkState(currBoard, 3, 3 - mBotId);
-		 int oppTwos = checkState(currBoard, 2, 3 - mBotId);
-		 int oppMissingThrees = checkMissingThree(currBoard, 3 - mBotId);
-		 return 10 * threes + twos - 10 * oppThrees - oppTwos;
+		 	return - 1000;
+		//  int threes = checkState(currBoard, 3, mBotId);
+		//  int twos   = checkState(currBoard, 2, mBotId);
+		//  int oppThrees = checkState(currBoard, 3, 3 - mBotId);
+		//  int oppTwos = checkState(currBoard, 2, 3 - mBotId);
+
+		 return 10 * missingThrees + missingTwos - 10 * oppMissingThrees - oppMissingTwos;
 	 }
 
 	 /**
@@ -356,10 +379,10 @@ public class Field {
 	 * Recursive function to evaluate all available moves
 	 */
 	 public int minimax(int[][] currBoard, int depth, int col, int bot){
-         if(depth == 0) {
-			 int res = evaluateBoard(currBoard);
-             return res;
-         }
+		 int res = evaluateBoard(currBoard);
+     if(depth == 0 || res == 1000 || res == - 1000) {
+			 return res;
+     }
 
 		 int maxScore = 0;
 
@@ -395,7 +418,6 @@ public class Field {
 				moves[i] = minimax(tempBoard, depth, i, bot);
 			else
 				moves[i] = -1;
-
 		//  for (int i = 0; i < mCols; i++)
 		//  	System.out.print(moves[i] + " ");
 		//  System.out.println("");
