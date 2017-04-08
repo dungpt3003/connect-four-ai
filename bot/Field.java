@@ -380,7 +380,7 @@ public class Field {
 	 */
 	 public int minimax(int[][] currBoard, int depth, int col, int bot){
 		 int res = evaluateBoard(currBoard);
-     if(depth == 0 || res == 1000 || res == - 1000) {
+     if(depth == 0) {
 			 return res;
      }
 
